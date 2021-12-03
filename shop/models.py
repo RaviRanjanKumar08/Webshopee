@@ -8,7 +8,7 @@ class Customer(models.Model):
     email=models.EmailField(max_length=50)
     phone=models.CharField(max_length=10)
     password=models.CharField(max_length=30)
-    prepeat=models.CharField(max_length=30,default="")
+    
 
     def __str__(self):
         return self.firstname + " " + self.lastname
@@ -18,6 +18,7 @@ class Customer(models.Model):
 
 
 class Product(models.Model):
+    
     product_id=models.AutoField
     product_name=models.CharField(max_length=200)
     desc=models.CharField(max_length=300)

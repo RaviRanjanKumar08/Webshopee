@@ -1,8 +1,12 @@
 from django.shortcuts import render,redirect
 from .models import Product, Contact, Order, OrderUpdate,Customer
 from math import ceil
-import json
+import json,random,math
 from django.http import HttpResponse
+from django.core.mail import send_mail
+from instamojo_wrapper import Instamojo
+
+
 
 # function for index---------------------------------------------------------------------------------------------
 def index(request):
@@ -15,7 +19,6 @@ def index(request):
         nSlides = n // 4 + ceil((n / 4) - (n // 4))
         allProds.append([prod, range(1, nSlides), nSlides])
     params = {'allProds':allProds}
-    # print(request.session.get("email"))
     return render(request, 'shop/index.html', params)
 
 # for about us page----------------------------------------------------------------------------------------------
@@ -39,63 +42,111 @@ def contact(request):
 # function for tracking----------------------------------------------------------------------------------------
 def tracker(request):
     if request.method=="POST":
-        orderId = request.POST.get('orderId', '')
-        email = request.POST.get('email', '')
-        print(orderId,email)
-        try:
-            order = Order.objects.filter(order_id=orderId, email=email)
-            if len(order)>0:
-                update = OrderUpdate.objects.filter(order_id=orderId)
-                updates = []
-                for item in update:
-                    updates.append({'text': item.update_desc, 'time': item.timestamp})
-                    response = json.dumps([updates, order[0].items_json] ,default=str)
-                return HttpResponse(response)
-            else:
-                return HttpResponse('{}')
-        except Exception as e:
-            return HttpResponse('{}')
-    # return render(request,"shop/tracker.html")
+        if request.session.get("email"):
+            orderId = request.POST.get('orderId', '')
+            try:
+                cust_email=request.session.get("email")
+                order = Order.objects.filter(order_id=orderId, email=cust_email)
+                if len(order)>0:
+                    update = OrderUpdate.objects.filter(order_id=orderId) 
+                    return render(request,"shop/tracker.html",{"updates":update,"order":order})
+                else:
+                    return render(request,"shop/tracker.html",{"msg":"There is no order associated with this order id"})   
+            except:
+                return render(request,"shop/tracker.html",{"msg":"There is no order associated with this order id"})  
+        else:
+            return render(request,"shop/tracker.html",{"login":"Please login to continue"})         
+
     else:
         return render(request, "shop/tracker.html")
 
 # for search template------------------------------------------------------------------------------------------------
 def search(request):
-
     return render(request, 'shop/search.html')
 
-
 def productView(request, myid):
-
     # Fetch the product using the id
     product = Product.objects.filter(id=myid)
     return render(request, 'shop/prodView.html', {'product':product[0]})
 
 # function for checkout-------------------------------------------------------------------------------
-def checkout(request):
+def checkout(request):    
     if request.method=="POST":
-        if request.session.get("customer_id"):
-            cust_email=request.session.get("email")
-            items_json = request.POST.get('itemsJson', '')
-            name = request.POST.get('name', '')
-            amount = request.POST.get('amount', '')
-            email = request.POST.get('email', '')
-            address = request.POST.get('address1', '') + " " + request.POST.get('address2', '')
-            city = request.POST.get('city', '')
-            state = request.POST.get('state', '')
-            zip_code = request.POST.get('zip_code', '')
-            phone = request.POST.get('phone', '')
-            order = Order(items_json=items_json, name=name, email=email, address=address, city=city,
-                           state=state, zip_code=zip_code, phone=phone,amount=amount,cust_details=cust_email)
-            order.save()
-            update = OrderUpdate(order_id=order.order_id, update_desc="The order has been placed")
-            update.save()
-            thank = True
-            id = order.order_id
-            return render(request, 'shop/checkout.html', {'thank':thank, 'id': id})
+        amount = request.POST.get('amount')        
+        if str(amount)!="0":
+            
+            if request.session.get("customer_id"):
+                cust_email=request.session.get("email")
+                items_json = request.POST.get('itemsJson', '')
+                
+                name = request.POST.get('name', '')
+                amount = request.POST.get('amount', '')
+                email = request.POST.get('email', '')
+                address = request.POST.get('address1', '') + " " + request.POST.get('address2', '')
+                city = request.POST.get('city', '')
+                state = request.POST.get('state', '')
+                zip_code = request.POST.get('zip_code', '')
+                phone = request.POST.get('phone', '')
+                details={"items_json":items_json,"cust_email":cust_email,"items_json":items_json,"name":name,"email":email,"address":address,"city":city,"state":state,"zip_code":zip_code,"phone":phone,"amount":amount}
+                return render(request,"shop/payment.html",details)
+            else:
+                return render(request,"shop/login.html")   
         else:
-            return render(request,"shop/login.html")
+            return render(request,"shop/checkout.html",{"alert":"Please add atleast one item in your Cart"})
+            
+    
     return render(request, 'shop/checkout.html')
+
+# order payment
+def payhandler(request):
+    if request.method=="POST":
+        cust_email = request.POST.get('cust_email')
+        items_json = request.POST.get('items_json')      
+        nameorder = request.POST.get('nameorder')
+        emailorder = request.POST.get('emailorder')
+        address = request.POST.get('address')
+        landmark = request.POST.get('landmark')
+        city = request.POST.get('city')
+        state = request.POST.get('state')
+        pincode = request.POST.get('pincode')
+        phone = request.POST.get('phone')
+        amountorder = request.POST.get('amountorder')  
+        # _________________________________________________
+        name = request.POST.get('name')
+        purpose = request.POST.get('purpose')
+        email = request.POST.get('email')
+        amount = request.POST.get('amount')
+        print(name,purpose,email,amount)
+        API_KEY = "test_1a3a4dfe51644a092dca2fa5e47"
+        AUTH_TOKEN = "test_5ede1870ea6ffd3a802912f8b4e"
+        api = Instamojo(api_key=API_KEY,auth_token=AUTH_TOKEN,endpoint='https://test.instamojo.com/api/1.1/')
+        
+        response = api.payment_request_create(
+        amount=amount,
+        purpose=purpose,
+        buyer_name=name,
+        send_email=True,
+        email=email,
+        redirect_url="http://localhost:8000/shop/status")
+        order = Order(items_json=items_json, name=name, email=email, address=address, city=city,
+                           state=state, zip_code=pincode, phone=phone,amount=amount,cust_details=cust_email)
+        order.save()
+        update = OrderUpdate(order_id=order.order_id, update_desc="Your order has been placed")
+        update.save()
+        
+        
+        
+        
+        return redirect(response['payment_request']['longurl'])
+    
+    else:
+        
+        return redirect('/shop/checkout')
+    
+# payment status
+def status(request):
+    return render(request,"shop/status.html")
+    
 
 # function for search functionality---------------------------------------------------------------
 def search(request):
@@ -121,11 +172,21 @@ def searchMatch(query, item):
         return True
     else:
         return False
+    
+    
+    # otp function
+def generateOTP() :
+    digits = "0123456789"
+    OTP = ""
+    for i in range(4) :
+        OTP += digits[math.floor(random.random() * 10)]
+    return OTP
 
 # function for signup---------------------------------------------------------------------------------------
 def signup(request):
     flag=""
     if request.method=="POST":
+        
         pdata=request.POST.get
         fname=pdata("firstname")
         lname=pdata("lastname")
@@ -139,18 +200,62 @@ def signup(request):
             if i.email==email or i.phone==phone:
                 flag=True
         if flag:
-            alert="user already exist"
+            alert="user already exist with this mobile number"
         elif not flag:
             if password1!= password2:
-                alert="password doesnot match"
+                alert="password didnot match"
             else:
-                Customer(firstname=fname,lastname=lname,email=email,phone=phone,password=password1,prepeat=password2).save()
+                Customer(firstname=fname,lastname=lname,email=email,phone=phone,password=password1).save()
+                # request.session["email"] = email
+                return redirect("/shop/login")
+                
                 alert="Registration Successful"
 
         return render(request,"shop/signup.html",{"alert":alert ,"first_name":fname,"last_name":lname,"email":email,"phone":phone})
     else:
 
         return render(request,"shop/signup.html")
+    
+    # verifyotp
+def verifyotp(request):
+    if request.method=="POST":
+        pdata=request.POST.get
+        email=pdata("email1")
+        otpsystem=pdata("otp")
+        userotp=pdata("otpbackend")
+        if otpsystem==userotp:
+            return render(request,"shop/signup.html",{"email":email})
+        else:
+            return render(request,"shop/reg.html",{"msg":"Sorry Otp was incorrect"})
+    else:
+        return redirect("/reg")
+        
+        
+    
+    
+    
+    # otpsend
+def reg(request):
+    if request.method=="POST":
+        email=request.POST.get("email")
+        obj=Customer.objects.filter(email=email)
+        if obj.exists():
+            return render(request,"shop/reg.html",{"msg":"Email already exist"})
+        else:
+            o=generateOTP()
+            print(o)
+            htmlgen = "<p> Your OTP is </p>"  +  " " "<strong>" + str(o)  + "</strong>"
+            # send_mail('E-mail verification',o,'webshopee11@gmail.com',[email], fail_silently=False, html_message=htmlgen)
+            
+            return render(request,"shop/reg.html",{"get_email":email,"otp":o})
+    else:
+        return render(request,"shop/reg.html")
+    
+    
+    
+    
+    
+    
 
 
 # function for login---------------------------------------------------------------------------------
@@ -193,8 +298,9 @@ def login(request):
 
 # views for logout----------------------------------------------------------------------------------
 def logout(request):
+    
     request.session.clear()
-    return redirect("/shop/login")
+    return redirect("/shop/login",{"msg":"clear_session"})
 
 # views for profile________________________________________________________________________________________
 
@@ -207,6 +313,7 @@ def profile(request):
 
 # views for orders______________________________________________________________________________________________
 def orders(request):
+    
     cust_email = request.session.get("email")
     print(cust_email)
     if request.session.get("customer_id"):
@@ -218,12 +325,14 @@ def orders(request):
               data={"order_fetch":cust_orders}
               return render(request,"shop/orders.html",data)
             else:
-                return HttpResponse("No Orders Found")
+              return render(request,"shop/no_order.html")
+                
                 # return render(request, "shop/orders.html", {"order_fetch":"No Orders Found"})
 
         except:
-            return HttpResponse("No Orders Found")
-            # return render(request,"shop/orders.html",{"order_fetch":"No Orders Found"})
+            return render(request,"shop/no_order.html")
+     
+                # return render(request,"shop/orders.html",{"order_fetch":"No Orders Found"})
 
 
 # ________________________________________________________________________________

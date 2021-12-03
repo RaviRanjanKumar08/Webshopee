@@ -15,7 +15,12 @@ urlpatterns = [
     path("logout", views.logout, name="logout"),
     path("profile", views.profile, name="profile"),
     path("orders", views.orders, name="orders"),
-     path("chatbot", views.chatbot, name="chatbot")
+    path("chatbot", views.chatbot, name="chatbot"),
+    path("verifyotp", views.verifyotp, name="verifyotp"),
+    path("status", views.status, name="status"),
+    path("payhandler", views.payhandler, name="payhandler"),
+    path("reg", views.reg, name="reg")
+    
 
 
 ]

@@ -10,7 +10,9 @@
 
 {% endblock %}
 
+{%block cart%}
 
+{%endblock%}
 
 
 {% block body %}
@@ -64,13 +66,22 @@
             </form>
         </div>
     </div>
+    <input type="hidden" value="{{msg}}" id="clear_storage">
 </div>
-
-
-
 
 {% endblock %}
 
+{% block js %}
+<script>
+    var x=document.getElementById("clear_storage").value;
+    if(x==""){
+        localStorage.clear()
+    }
+    
+
+</script>
+
+{% endblock %}
 
 
 

@@ -568,8 +568,8 @@ ul {
 <!--                        <li data-image="https://res.cloudinary.com/dxfq3iotg/image/upload/v1565713228/single_3.jpg"><img src="https://res.cloudinary.com/dxfq3iotg/image/upload/v1565713228/single_3.jpg" alt=""></li>-->
                     </ul>
                 </div>
-                <div class="col-lg-4 order-lg-2 order-1">
-                    <div class="image_selected"><img src="/media/{{product.image}}" alt=""></div>
+                <div class="col-lg-4 order-lg-2 order-1" style="width: 100% !important; height: 100% !important;">
+                    <div class="image_selected" style="width: 100% !important; height: 100% !important;"><img src="/media/{{product.image}}" alt="" style="width: 100% !important; height: 100% !important;"></div>
                 </div>
                 <div class="col-lg-6 order-3">
                     <div class="product_description">
@@ -618,8 +618,8 @@ ul {
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-xs-6"> <button type="button" class="btn btn-primary shop-button">Add to Cart</button> <button type="button" class="btn btn-success shop-button">Buy Now</button>
-                                <div class="product_fav"><i class="fas fa-heart"></i></div>
+                            <!-- <div class="col-xs-6"> <button type="button" class="btn btn-primary shop-button">Add to Cart</button> <button type="button" class="btn btn-success shop-button">Buy Now</button> -->
+                                <!-- <div class="product_fav"><i class="fas fa-heart"></i></div> -->
                             </div>
                         </div>
                     </div>
@@ -633,31 +633,31 @@ ul {
 <!--________________________________________________________________________________________________________________-->
 {% block js %}
 <script>
-console.log('working');
-if(localStorage.getItem('cart') == null){
-var cart = {};
-}
-else
-{
-cart = JSON.parse(localStorage.getItem('cart'));
-document.getElementById('cart').innerHTML = Object.keys(cart).length;
-}
-$('.cart').click(function(){
-console.log('clicked');
-var idstr = this.id.toString();
-console.log(idstr);
-if (cart[idstr] !=undefined){
-cart[idstr] = cart[idstr] + 1;
-}
-else
-{
-cart[idstr] = 1;
-}
-console.log(cart);
-localStorage.setItem('cart', JSON.stringify(cart));
-document.getElementById('cart').innerHTML = Object.keys(cart).length;
-});
-$('#popcart').popover();
-document.getElementById("popcart").setAttribute('data-content', '<h5>Cart for your items in my shopping cart</h5>');
-</script>
+    console.log('working');
+    if(localStorage.getItem('cart') == null){
+    var cart = {};
+    }
+    else
+    {
+    cart = JSON.parse(localStorage.getItem('cart'));
+    document.getElementById('cart').innerHTML = Object.keys(cart).length;
+    }
+    $('.cart').click(function(){
+    console.log('clicked');
+    var idstr = this.id.toString();
+    console.log(idstr);
+    if (cart[idstr] !=undefined){
+    cart[idstr] = cart[idstr] + 1;
+    }
+    else
+    {
+    cart[idstr] = 1;
+    }
+    console.log(cart);
+    localStorage.setItem('cart', JSON.stringify(cart));
+    document.getElementById('cart').innerHTML = Object.keys(cart).length;
+    });
+    $('#popcart').popover();
+    document.getElementById("popcart").setAttribute('data-content', '<h5>Cart for your items in my shopping cart</h5>');
+    </script>
 {% endblock %}

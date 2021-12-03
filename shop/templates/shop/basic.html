@@ -28,51 +28,52 @@
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item active">
-        <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+        <a class="nav-link" href="/"><span style="font-weight: bolder;">Home</span>  <span class="sr-only">(current)</span></a>
+      </li>
+
+     
+
+      <li class="nav-item active">
+        <a class="nav-link" href="/shop/about"><span style="font-weight: bolder;">About Us</span></a>
       </li>
 
       <li class="nav-item active">
-        <a class="nav-link" href="/shop/tracker">Track Order  <span class="sr-only">(current)</span></a>
+        <a class="nav-link" href="/shop/contact"><span style="font-weight: bolder;">Contact Us</span></a>
       </li>
 
+      {%if request.session.customer_id or request.session.email%}
       <li class="nav-item active">
-        <a class="nav-link" href="/shop/about">About Us</a>
+        <a class="nav-link" href="/shop/tracker"><span style="font-weight: bolder;">Track Order</span>  <span class="sr-only">(current)</span></a>
       </li>
-
-      <li class="nav-item active">
-        <a class="nav-link" href="/shop/contact">Contact Us </a>
-      </li>
-
-      {%if request.session.customer_id%}
      
       <li class="nav-item active" id="">
-        <a class="nav-link" href="/shop/profile">Profile</a>
+        <a class="nav-link" href="/shop/profile"><span style="font-weight: bolder;">Profile</span></a>
       </li>
 
       <li class="nav-item active" id="">
-        <a class="nav-link" href="/shop/orders">Your Orders</a>
+        <a class="nav-link" href="/shop/orders"><span style="font-weight: bolder;">Your Orders</span></a>
       </li>
 
       <li class="nav-item active" id="logout">
-        <a class="nav-link" href="/shop/logout">Logout</a>
+        <a class="nav-link" href="/shop/logout"><span style="font-weight: bolder;">Logout</span></a>
       </li>
       <li class="nav-item active" id="">
-        <a class="nav-link" href="/shop/chatbot">Chatbot</a>
+        <a class="nav-link" href="/shop/chatbot"><span style="font-weight: bolder;">Chatbot</span></a>
       </li>
 
 
 
 {%else%}
       <li class="nav-item active" id="signup">
-        <a class="nav-link" href="/shop/signup">Sign Up</a>
+        <a class="nav-link" href="/shop/reg"><span style="font-weight: bolder;">Sign Up</span></a>
       </li>
 
       <li class="nav-item active" id="login">
-        <a class="nav-link" href="/shop/login">Login</a>
+        <a class="nav-link" href="/shop/login"><span style="font-weight: bolder;">Login</span></a>
       </li>
 
       <li class="nav-item active" id="">
-        <a class="nav-link" href="/shop/chatbot">Chatbot</a>
+        <a class="nav-link" href="/shop/chatbot"><span style="font-weight: bolder;">Chatbot</span></a>
       </li>
       
       {%endif%}
@@ -83,12 +84,15 @@
       <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search" id="search">
       <button class="btn btn-outline-dark my-2 my-sm-0" type="submit"><b>Search</b></button>
     </form>
+
+    {%block cart%}
     <button type="button" class="btn btn-secondary mx-2" id="popcart" data-container="body" data-toggle="popover" data-placement="bottom" data-html="true" data-content="Vivamus
 sagittis lacus vel augue laoreet rutrum faucibus.">
 
 
-  Cart <span id="cart">0</span>
+  Cart <span id="cart" onclick="popovershow()"></span>
 </button>
+{%endblock%}
   </div>
 </nav>
   {% block body %} {% endblock %}

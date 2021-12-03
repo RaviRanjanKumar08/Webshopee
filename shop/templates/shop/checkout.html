@@ -6,6 +6,10 @@
 </style>
 {%endblock%}
 {% block body %}
+{%if alert%}
+<div class="container m-4" style="display: block; color: green;font-weight: bolder;" id="cartempty">{{alert}}</div>
+{%endif%}
+<div class="container">
 <div class="col my-4">
         <h2>Step 1 - WebShopee Checkout - Review Your Cart Items</h2>
         <div class="my-4">
@@ -23,7 +27,7 @@
         </div>
     <div class="col my-4">
         <h2>Step 2 - Enter Address & Details:</h2>
-        <form method="post" action="checkout">{% csrf_token %}
+        <form method="POST" action="/shop/checkout">{% csrf_token %}
             <input type="hidden" name="itemsJson" id="itemsJson">
             <input type="hidden" name="amount" id="amount">
             <div class="form-row w-50">
@@ -62,13 +66,18 @@
            <b>     <label for="inputZip">Phone</label> </b>
                 <input type="tel" class="form-control" id="phone" name="phone" required placeholder="Enter Phone No.">
             </div>
-            <button type="submit" class="btn btn-primary">Place Order</button>
+            <button type="submit" class="btn btn-primary">Place Order & Pay</button>
         </form>
     </div>
+</div>
 </div>
 {% endblock %}
 {% block js %}
 <script>
+setTimeout(function(){
+        document.getElementById("cartempty").style.display="none"},3000
+    )
+
 if (localStorage.getItem('cart') == null) {
     var cart = {};
 } else {
@@ -98,11 +107,11 @@ if ($.isEmptyObject(cart)) {
 document.getElementById('cart').innerHTML = sum;
 document.getElementById('totalPrice').innerHTML = totalPrice;
 $('#itemsJson').val(JSON.stringify(cart));
-{% if thank %}
+// {% if thank %}
 alert('Thanks for ordering with us. Your order is is {{id}}. Use it to track your order using our order tracker');
 localStorage.clear();
 document.location = "/shop";
-{% endif %}
+// {% endif %}
 $('#amount').val($('#totalPrice').html())
 </script>
 {% endblock %}

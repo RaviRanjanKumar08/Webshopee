@@ -1,0 +1,71 @@
+{% extends 'shop/basic.html' %}
+{%block body%}
+<div>.</div>
+<div>.</div>
+<div class="container text-center" style="display: block;" id="remove"><h4>Enter Email to Register</h4> </div>
+<div class="container" id="hidecontainer" style="display: block; margin: auto !important;">
+    <div class="row">
+        <div class="col-md-4"></div>
+        <div class="col-md-4 m-4" style="border: 2px solid wheat; background-color: wheat;">
+            
+<form action="/shop/reg" method="POST">
+    {% csrf_token %}
+    <label for="email">Email address</label>
+<input type="email" name="email" id="email" style="display: block;">
+
+<input type="submit" class="btn btn-primary m-2 ">
+</form>
+</div>
+</div>
+</div>
+{%if msg%}
+
+    <div class="alert alert-primary container" role="alert" id="alert" style="display: block;">
+        {{msg}}
+      </div>
+
+{%endif%}
+
+{%if get_email%}
+<div class="container">
+    <div class="row">
+        <div class="col-md-4"></div>
+        <div class="col-md-4 m-4" style="border: 2px solid wheat; background-color: wheat;">
+<form action="/shop/verifyotp" method="POST">
+    {% csrf_token %}
+
+<input type="hidden" name="email1" value="{{get_email}}" id="hiddenemail">
+<input type="hidden" name="otp" value="{{otp}}">
+OTP<input type="text" name="otpbackend" id="otp" style="display: none;">
+
+<input type="submit" class="btn btn-primary m-2">
+</form>
+</div>
+</div>
+</div>
+{%endif%}
+
+
+{%endblock%}
+
+{%block js%}
+<script>
+     setTimeout(function(){
+        document.getElementById("alert").style.display="none"},3000
+    )
+
+var hidemail=document.getElementById("hiddenemail").value;
+console.log(hidemail)
+if(hidemail!=""){
+    document.getElementById("otp").style.display="block";
+    document.getElementById("hidecontainer").style.display="none";
+    document.getElementById("remove").innerHTML="Enter OTP sent to your Email";
+
+
+
+}
+
+   
+
+</script>
+{%endblock%}

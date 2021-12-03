@@ -129,7 +129,8 @@ function updatePopover(cart) {
     popStr = popStr + "</div> <a href='/shop/checkout'><button class='btn btn-primary' id ='checkout'>Checkout</button></a> <button class='btn btn-primary' onclick='clearCart()' id ='clearCart'>Clear </button>     "
     console.log(popStr);
     document.getElementById('popcart').setAttribute('data-content', popStr);
-    $('#popcart').popover('show');
+    function popovershow(){
+    $('#popcart').popover('show');}
 }
 
 function clearCart() {
@@ -153,6 +154,7 @@ function updateCart(cart) {
     console.log(cart);
     updatePopover(cart);
 }
+
 // If plus or minus button is clicked, change the cart as well as the display value
 $('.divpr').on("click", "button.minus", function() {
     a = this.id.slice(7, );

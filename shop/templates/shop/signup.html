@@ -13,10 +13,13 @@
 
 
 {% block body %}
-              {{alert}}
+              
 
 <div class="container mt-4" >
-
+   
+   <div class="alert alert-primary" role="alert" id="alert" style="display: block;">
+    {{alert}}
+  </div>
     <div class="p-1 m-3">
 
 
@@ -67,8 +70,8 @@
                 </div>
                 <!-- email -->
                 <div class="form-group ">
-                 <b>   <label for="">Email</label>     </b>
-                    <input required type="email" name="email" id=""
+                 <b>   <label for=""></label>     </b>
+                    <input required type="hidden" readonly name="email" id=""
                     value="{{email}}"
                     class=" form-control-sm form-control" placeholder="Enter Email">
                 </div>
@@ -106,3 +109,11 @@
 </div>
 
 {% endblock %}
+
+{%block js%}
+<script>
+    setTimeout(function(){
+        document.getElementById("alert").style.display="none"},3000
+    )
+</script>
+{%endblock%}
